@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Text;
 using AutoMapper;
@@ -80,7 +81,7 @@ namespace Boilerplate.Api
                 {            
                     options.Filters.Add(typeof(ModelValidatorActionFilter));
                     options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status200OK));
-                    options.Filters.Add(new ProducesResponseTypeAttribute(typeof(BaseResponse<ErrorModel>), StatusCodes.Status400BadRequest));
+                    options.Filters.Add(new ProducesResponseTypeAttribute(typeof(BaseResponse), StatusCodes.Status400BadRequest));
                 })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
@@ -112,14 +113,19 @@ namespace Boilerplate.Api
   
                 options.IncludeXmlComments(Path.Combine(   
                     Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), $"{GetType().Assembly.GetName().Name}.xml"  
-                ));  
-               
+                ));
+
                 options.AddSecurityDefinition("Bearer", new ApiKeyScheme
                 {
                     Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
                     Name = "Authorization",
                     In = "Header",
                     Type = "apiKey"
+                });
+
+                options.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                {
+                    { "Bearer", new string[] { } }
                 });
             });
 
@@ -138,6 +144,16 @@ namespace Boilerplate.Api
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ApplicationDbContext context,
             UserManager<ApplicationUser> userManager, IApiVersionDescriptionProvider provider)
         {
+            //Empty response error hack-fix (seems fixed in new asp.net core versions)
+            //app.Use(async (ctx, next) =>
+            //{
+            //    await next();
+            //    if (ctx.Response.StatusCode == 204)
+            //    {
+            //        ctx.Response.ContentLength = 0;
+            //    }
+            //});
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -167,6 +183,15 @@ namespace Boilerplate.Api
 
                     options.RoutePrefix = "";
                 });
+
+            // FOR ANGULAR
+            //app.UseCors(builder =>
+            //    builder
+            //        .WithOrigins("http://localhost:4200")
+            //        .AllowAnyHeader()
+            //        .AllowAnyOrigin()
+            //        .AllowAnyMethod()
+            //);
 
             app.UseMvc(routes =>
             {

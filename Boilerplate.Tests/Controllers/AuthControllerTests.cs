@@ -41,13 +41,12 @@ namespace Boilerplate.Tests.Controllers
                 RefreshToken = authResult.RefreshToken
             };
             
-            var refreshResponse = await Post<AuthResultModel, RefreshRequestModel>("/api/v1/auth/refresh", refreshModel);
+            var refreshResponse = await PostModel<AuthResultModel, RefreshRequestModel>("/api/v1/auth/refresh", refreshModel);
             AssertSuccesDataResponse(refreshResponse);
             
             refreshResponse.Data.Token.Should().NotBeNullOrEmpty();
             refreshResponse.Data.RefreshToken.Should().NotBeNullOrEmpty();
             refreshResponse.Data.UserId.Should().NotBeEmpty();
-
         }
     }
 }

@@ -27,7 +27,7 @@ namespace Boilerplate.Tests
             _client = Factory.CreateClient();
         }
 
-        private void SetupClinet()
+        private void SetupClient()
         {
             if (!string.IsNullOrEmpty(_userToken))
                 _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _userToken);
@@ -35,14 +35,32 @@ namespace Boilerplate.Tests
 
         protected async Task<BaseResponse<TResponse>> Get<TResponse>(string uri)
         {
-            SetupClinet();
+            SetupClient();
             var resposne = await _client.GetAsync(uri);
             return await PrepareResponse<TResponse>(resposne);
         }
 
-        protected async Task<BaseResponse<TResponse>> Post<TResponse, TRequest>(string uri, TRequest data)
+        protected async Task<TResponse> Post<TResponse, TRequest>(string uri, TRequest data)
         {
-            SetupClinet();
+            SetupClient();
+            var serialized = JsonConvert.SerializeObject(data);
+            var response =
+                await _client.PostAsync(uri, new StringContent(serialized, Encoding.UTF8, "application/json"));
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+                throw new HttpRequestException("The specified uri or entity was not found");
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+                throw new HttpRequestException("Unauthorized");
+
+            var stringContent = await response.Content.ReadAsStringAsync();
+            var result = JsonConvert.DeserializeObject<TResponse>(stringContent);
+            return result;
+        }
+
+        protected async Task<BaseResponse<TResponse>> PostModel<TResponse, TRequest>(string uri, TRequest data)
+        {
+            SetupClient();
             var serialized = JsonConvert.SerializeObject(data);
             var response =
                 await _client.PostAsync(uri, new StringContent(serialized, Encoding.UTF8, "application/json"));
@@ -50,9 +68,9 @@ namespace Boilerplate.Tests
             return await PrepareResponse<TResponse>(response);
         }
 
-        protected async Task<BaseResponse<TModel>> Post<TModel>(string uri, TModel data)
+        protected async Task<BaseResponse<TModel>> PostModel<TModel>(string uri, TModel data)
         {
-            SetupClinet();
+            SetupClient();
             var serialized = JsonConvert.SerializeObject(data);
             var response =
                 await _client.PostAsync(uri, new StringContent(serialized, Encoding.UTF8, "application/json"));
@@ -62,7 +80,7 @@ namespace Boilerplate.Tests
 
         protected async Task<BaseResponse<TResponse>> Put<TResponse, TRequest>(string uri, TRequest data)
         {
-            SetupClinet();
+            SetupClient();
             var serialized = JsonConvert.SerializeObject(data);
             var response =
                 await _client.PutAsync(uri, new StringContent(serialized, Encoding.UTF8, "application/json"));
@@ -72,7 +90,7 @@ namespace Boilerplate.Tests
 
         protected async Task<BaseResponse<TModel>> Put<TModel>(string uri, TModel data)
         {
-            SetupClinet();
+            SetupClient();
             var serialized = JsonConvert.SerializeObject(data);
             var response =
                 await _client.PutAsync(uri, new StringContent(serialized, Encoding.UTF8, "application/json"));
@@ -82,7 +100,7 @@ namespace Boilerplate.Tests
 
         protected async Task<Response> Delete(string uri)
         {
-            SetupClinet();
+            SetupClient();
             var response = await _client.DeleteAsync(uri);
             return await PrepareResponse(response);
         }
@@ -127,7 +145,7 @@ namespace Boilerplate.Tests
                 Password = password
             };
 
-            var response = await Post<AuthResultModel, SignUpModel>("/api/v1/auth/signup", model);
+            var response = await PostModel<AuthResultModel, SignUpModel>("/api/v1/auth/signup", model);
             AssertSuccesDataResponse(response);
 
             response.Data.Token.Should().NotBeNullOrEmpty();
@@ -147,7 +165,7 @@ namespace Boilerplate.Tests
                 Password = password
             };
 
-            var response = await Post<AuthResultModel, SignInModel>("/api/v1/auth/signin", model);
+            var response = await PostModel<AuthResultModel, SignInModel>("/api/v1/auth/signin", model);
             AssertSuccesDataResponse(response);
 
             response.Data.Token.Should().NotBeNullOrEmpty();

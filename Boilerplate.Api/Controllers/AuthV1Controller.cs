@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Boilerplate.Api.Utils;
 using Boilerplate.Models;
 using Boilerplate.Models.Auth;
 using Boilerplate.Services.Abstractions;
@@ -18,12 +19,11 @@ namespace Boilerplate.Api.Controllers
         }
 
         /// <summary>
-        /// Sign up user with login and password
+        /// Register new user
         /// </summary>
-        /// <param name="model"></param>
-        /// <returns>Authorization data with bearer token</returns>
+        /// <response code="422">Unprocessable Entity. When user with specified username already exist</response>
         [HttpPost("signUp")]
-        [ProducesResponseType(typeof(BaseResponse<ErrorModel>), StatusCodes.Status400BadRequest)]
+        [ProducesErrorResponse(StatusCodes.Status422UnprocessableEntity)]
         public async Task<BaseResponse<AuthResultModel>> SignUp(SignUpModel model) =>
             await PrepareResponse(_authService.RegisterUser, model);
 

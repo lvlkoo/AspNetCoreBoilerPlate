@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace Boilerplate.Api.Middleware
 {
@@ -48,7 +49,11 @@ namespace Boilerplate.Api.Middleware
                             Error = error
                         };
 
-                        await context.Response.WriteAsync(JsonConvert.SerializeObject(response).ToString());
+                        var serializerSettings = new JsonSerializerSettings
+                        {
+                            ContractResolver = new CamelCasePropertyNamesContractResolver()
+                        };
+                        await context.Response.WriteAsync(JsonConvert.SerializeObject(response, serializerSettings).ToString());
                     }
                 });
             });
