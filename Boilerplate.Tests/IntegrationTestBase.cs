@@ -1,8 +1,10 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Boilerplate.DAL;
 using Boilerplate.DAL.Entities;
 using Boilerplate.Models;
 using Boilerplate.Models.Auth;
@@ -18,6 +20,7 @@ namespace Boilerplate.Tests
     public class IntegrationTestBase : IClassFixture<Factory>
     {
         protected readonly Factory Factory;
+        protected AuthResultModel UserData { get; set; }
         private readonly HttpClient _client;
         private string _userToken;
 
@@ -152,9 +155,17 @@ namespace Boilerplate.Tests
             response.Data.RefreshToken.Should().NotBeNullOrEmpty();
             response.Data.UserId.Should().NotBeEmpty();
 
-            _userToken = response.Data.Token;
+            UserData = response.Data;
 
             return response.Data;
+        }
+
+        protected async Task<AuthResultModel> SignUpUser(params string[] roles)
+        {
+            var userName = GetRandomString();
+            var password = GetRandomString();
+            await CreateUser(userName, password, roles);
+            return await SigInUser(userName, password);
         }
 
         protected async Task<AuthResultModel> SigInUser(string username, string password)
@@ -171,22 +182,17 @@ namespace Boilerplate.Tests
             response.Data.Token.Should().NotBeNullOrEmpty();
             response.Data.UserId.Should().NotBeEmpty();
 
-            _userToken = response.Data.Token;
+            UserData = response.Data;
 
             return response.Data;
         }
 
-        protected async Task CreateAdminUser(string userName, string password)
+        protected async Task<ApplicationUser> CreateUser(params string[] roles)
         {
-            await CreateUser(userName, password);
+            return await CreateUser(Guid.NewGuid().ToString(), Guid.NewGuid().ToString(), roles);
         }
 
-        protected async Task CreateWorkspaceAdminUser(string userName, string password)
-        {
-            await CreateUser(userName, password);
-        }
-
-        protected async Task CreateUser(string userName, string password, params string[] roles)
+        protected async Task<ApplicationUser> CreateUser(string userName, string password, params string[] roles)
         {
             using (var scope = Factory.Server.Host.Services.CreateScope())
             {
@@ -194,7 +200,7 @@ namespace Boilerplate.Tests
 
                 var adminUser = new ApplicationUser
                 {
-                    UserName = userName
+                    UserName = userName,
                 };
 
                 var identityResult = await userManager.CreateAsync(adminUser, password);
@@ -202,7 +208,62 @@ namespace Boilerplate.Tests
 
                 identityResult = await userManager.AddToRolesAsync(adminUser, roles);
                 identityResult.Succeeded.Should().BeTrue();
+
+                return adminUser;
             }
+        }
+
+        protected async Task<ApplicationUser> CreateUser(Action<ApplicationUser> overrides, string password, params string[] roles)
+        {
+            using (var scope = Factory.Server.Host.Services.CreateScope())
+            {
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+                var adminUser = new ApplicationUser();
+
+                overrides(adminUser);
+
+                var identityResult = await userManager.CreateAsync(adminUser, password);
+                identityResult.Succeeded.Should().BeTrue();
+
+                identityResult = await userManager.AddToRolesAsync(adminUser, roles);
+                identityResult.Succeeded.Should().BeTrue();
+
+                return adminUser;
+            }
+        }
+
+        protected async Task AddUserToRoles(ApplicationUser user, params string[] roles)
+        {
+            using (var scope = Factory.Server.Host.Services.CreateScope())
+            {
+                var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+
+                var identityResult = await userManager.AddToRolesAsync(user, roles);
+                identityResult.Succeeded.Should().BeTrue();
+            }
+        }
+
+        protected async Task<TEntity> CreateEntity<TEntity>(Action<TEntity> overrides) where TEntity : class, new()
+        {
+            var entity = new TEntity();
+
+            overrides(entity);
+
+            using (var scope = Factory.Server.Host.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+                await context.AddAsync(entity);
+                await context.SaveChangesAsync();
+
+                return entity;
+            }
+        }
+
+        protected string GetRandomString()
+        {
+            return Guid.NewGuid().ToString();
         }
     }
 }
