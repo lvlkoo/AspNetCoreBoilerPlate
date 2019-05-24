@@ -57,7 +57,8 @@ namespace Boilerplate.Services.Implementations
 
         public async Task<AuthResultModel> AuthorizeUser(SignInModel model)
         {
-            var user = await _userManager.FindByNameAsync(model.Username);
+            var user = await _userManager.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.UserName == model.Username);
             if (user == null)
                 throw new UserNotAuthorizedException("Username or password is incorrect");
 
@@ -67,11 +68,14 @@ namespace Boilerplate.Services.Implementations
             user.RefreshToken = GenerateRefreshToken();
             await _userManager.UpdateAsync(user);
 
+            var userPermissions = user.UserRoles.SelectMany(_ => _.Role.Permissions.Split(","));
+
             var resultModel = new AuthResultModel
             {
                 Token = await GenerateUserToken(user),
                 Expire = DateTime.UtcNow.AddDays(7),
                 UserId = user.Id,
+                Permissions = new List<string>(userPermissions),
                 RefreshToken = user.RefreshToken
             };
 
@@ -94,8 +98,9 @@ namespace Boilerplate.Services.Implementations
             if (!(securityToken is JwtSecurityToken jwtSecurityToken) || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 throw new BadRequestException("Invalid token");
 
-            var userId = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-            var user = await _userManager.FindByIdAsync(userId);
+            var userId = Guid.Parse(principal.FindFirstValue(ClaimTypes.NameIdentifier));
+            var user = await _userManager.Users.Include(u => u.UserRoles).ThenInclude(ur => ur.Role)
+                .FirstOrDefaultAsync(u => u.Id == userId);
             if (user == null)
                 throw new BadRequestException("Invalid token");
 
@@ -142,10 +147,11 @@ namespace Boilerplate.Services.Implementations
             var tokenHandler = new JwtSecurityTokenHandler();
             var keyBytes = Encoding.ASCII.GetBytes(_configuration["App:Auth:Key"]);
 
-            var userRoles = await _userManager.GetRolesAsync(user);
+            var userPermissions = user.UserRoles.SelectMany(_ => _.Role.Permissions.Split(","));
 
             var claims = new List<Claim> {new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())};
-            claims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
+            claims.AddRange(user.UserRoles.Select(_ => new Claim(ClaimTypes.Role, _.Role.Name)));
+            claims.AddRange(userPermissions.Select(permission => new Claim("Permission", permission)));
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

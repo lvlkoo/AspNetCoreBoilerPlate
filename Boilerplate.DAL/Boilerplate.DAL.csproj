@@ -11,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Boilerplate.Models\Boilerplate.Models.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Migrations\" />
   </ItemGroup>
 

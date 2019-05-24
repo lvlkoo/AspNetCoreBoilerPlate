@@ -22,7 +22,6 @@ namespace Boilerplate.Tests
         protected readonly Factory Factory;
         protected AuthResultModel UserData { get; set; }
         private readonly HttpClient _client;
-        private string _userToken;
 
         public IntegrationTestBase(Factory factory)
         {
@@ -32,8 +31,8 @@ namespace Boilerplate.Tests
 
         private void SetupClient()
         {
-            if (!string.IsNullOrEmpty(_userToken))
-                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _userToken);
+            if (!string.IsNullOrEmpty(UserData?.Token))
+                _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", UserData.Token);
         }
 
         protected async Task<BaseResponse<TResponse>> Get<TResponse>(string uri)

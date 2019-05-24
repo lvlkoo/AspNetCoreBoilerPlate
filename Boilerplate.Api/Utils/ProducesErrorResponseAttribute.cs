@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Boilerplate.Models;
+﻿using Boilerplate.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Boilerplate.Api.Utils

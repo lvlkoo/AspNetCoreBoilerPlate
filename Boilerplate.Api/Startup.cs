@@ -13,6 +13,7 @@ using Boilerplate.Models;
 using Boilerplate.Services.Abstractions;
 using Boilerplate.Services.Implementations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -134,15 +135,18 @@ namespace Boilerplate.Api
                 config.AddProfile<AutomapperProfile>();
             });
 
+            services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
             //application services
             services.AddTransient<IAuthService, DefaultJwtAuthService>();
             services.AddTransient<IUploadsService, DefaultUploadsService>();
             services.AddTransient<IEmailService, MailKitEmailService>();
+            services.AddTransient<IRolesService, DefaultRolesService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager, IApiVersionDescriptionProvider provider)
+            UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IApiVersionDescriptionProvider provider)
         {
             //Empty response error hack-fix (seems fixed in new asp.net core versions)
             //app.Use(async (ctx, next) =>
@@ -200,7 +204,7 @@ namespace Boilerplate.Api
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            //DataSeeder.Seed(context, userManager);
+            DataSeeder.Seed(context, userManager, roleManager);
         }
     }
 }

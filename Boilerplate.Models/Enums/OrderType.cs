@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Boilerplate.Models.Enums
+﻿namespace Boilerplate.Models.Enums
 {
     public enum OrderType
     {
