@@ -147,11 +147,11 @@ namespace Boilerplate.Services.Implementations
             var tokenHandler = new JwtSecurityTokenHandler();
             var keyBytes = Encoding.ASCII.GetBytes(_configuration["App:Auth:Key"]);
 
-            var userPermissions = user.UserRoles.SelectMany(_ => _.Role.Permissions.Split(","));
+            var userPermissions = user?.UserRoles?.SelectMany(_ => _.Role.Permissions.Split(","));
 
             var claims = new List<Claim> {new Claim(ClaimTypes.NameIdentifier, user.Id.ToString())};
-            claims.AddRange(user.UserRoles.Select(_ => new Claim(ClaimTypes.Role, _.Role.Name)));
-            claims.AddRange(userPermissions.Select(permission => new Claim("Permission", permission)));
+            claims.AddRange(user.UserRoles?.Select(_ => new Claim(ClaimTypes.Role, _.Role.Name)) ?? Enumerable.Empty<Claim>());
+            claims.AddRange(userPermissions?.Select(permission => new Claim("Permission", permission)) ?? Enumerable.Empty<Claim>());
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
