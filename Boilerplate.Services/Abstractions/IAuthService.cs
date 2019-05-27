@@ -10,6 +10,7 @@ namespace Boilerplate.Services.Abstractions
         Task<AuthResultModel> RegisterUser(SignUpModel model);
         Task<AuthResultModel> AuthorizeUser(SignInModel model);
         Task<AuthResultModel> RefreshUserToken(RefreshRequestModel refreshRequest);
+        bool IsAuthorized();
         Guid GetAuthorizedUserId();
         Task<ApplicationUser> GetAuthorizedUser();
     }

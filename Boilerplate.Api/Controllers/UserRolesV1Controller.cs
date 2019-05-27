@@ -4,7 +4,6 @@ using Boilerplate.Api.ActionFilters;
 using Boilerplate.Models;
 using Boilerplate.Models.Auth;
 using Boilerplate.Services.Abstractions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Boilerplate.Api.Controllers

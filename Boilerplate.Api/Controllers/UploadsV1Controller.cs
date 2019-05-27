@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Boilerplate.Api.Utils.Swagger;
 using Boilerplate.Models;
+using Boilerplate.Models.Validators;
 using Boilerplate.Services.Abstractions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,6 +20,14 @@ namespace Boilerplate.Api.Controllers
         {
             _uploadsService = uploadsService;
         }
+
+        /// <summary>
+        /// Get file by id
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("{id}")]
+        public async Task<IActionResult> Get([ValidGuid] Guid id) => 
+            await PreparePhysicalFileResponse(_uploadsService.Get, id);
 
         /// <summary>
         /// Upload files

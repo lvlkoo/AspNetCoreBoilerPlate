@@ -118,6 +118,12 @@ namespace Boilerplate.Services.Implementations
             return resultModel;
         }
 
+        public bool IsAuthorized()
+        {
+            var claim = _contextAccessor.HttpContext.User?.FindFirst(ClaimTypes.NameIdentifier);
+            return !string.IsNullOrEmpty(claim?.Value);
+        }
+
         public Guid GetAuthorizedUserId()
         {
             if (_contextAccessor.HttpContext.User == null)

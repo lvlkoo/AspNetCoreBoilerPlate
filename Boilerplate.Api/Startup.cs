@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using AutoMapper;
 using Boilerplate.Api.ActionFilters;
 using Boilerplate.Api.Middleware;
@@ -12,6 +13,7 @@ using Boilerplate.DAL.Entities;
 using Boilerplate.Models;
 using Boilerplate.Services.Abstractions;
 using Boilerplate.Services.Implementations;
+using Boilerplate.Services.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -44,8 +46,10 @@ namespace Boilerplate.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")));
+            {
+                //options.UseInMemoryDatabase("db"); //for testing purposes only
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+            });
             services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
                 {
                     options.Password.RequireDigit = false;
@@ -67,6 +71,23 @@ namespace Boilerplate.Api
                         ValidateIssuer = false,
                         ValidateAudience = false
                     };
+
+                    //these needed for allow signalr pass bearer token authentication
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+
+                            // If the request is for our hub...
+                            var path = context.HttpContext.Request.Path;
+                            if (!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/hubs")))
+                                context.Token = accessToken;
+
+                            return Task.CompletedTask;
+                        }
+                    };
+
                 });
 
             services.AddAuthorization(options =>
@@ -142,6 +163,12 @@ namespace Boilerplate.Api
             services.AddTransient<IUploadsService, DefaultUploadsService>();
             services.AddTransient<IEmailService, MailKitEmailService>();
             services.AddTransient<IRolesService, DefaultRolesService>();
+
+            //chat services
+            services.AddSignalR();
+            services.AddTransient<IChatProvider, SignalrChatProvider>();
+            services.AddTransient<IChatConnectionsStore, InMemoryChatConnectionStore>();
+            services.AddTransient<IChatService, ChatService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -165,10 +192,12 @@ namespace Boilerplate.Api
             }
             else
             {
-                app.ConfigureExceptionHandler();
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            //exception handling with middleware
+            app.ConfigureExceptionHandler();
 
             //app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -189,13 +218,18 @@ namespace Boilerplate.Api
                 });
 
             // FOR ANGULAR
-            //app.UseCors(builder =>
-            //    builder
-            //        .WithOrigins("http://localhost:4200")
-            //        .AllowAnyHeader()
-            //        .AllowAnyOrigin()
-            //        .AllowAnyMethod()
-            //);
+            app.UseCors(builder =>
+                builder
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .SetIsOriginAllowed((host) => true)
+                    .AllowCredentials()
+            );
+
+            app.UseSignalR(routes =>
+            {
+                routes.MapHub<MainHub>("/hubs/main");
+            });
 
             app.UseMvc(routes =>
             {

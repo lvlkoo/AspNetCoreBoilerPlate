@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Boilerplate.DAL;
 using Boilerplate.DAL.Entities;
+using Boilerplate.Models.Exceptions;
 using Boilerplate.Services.Abstractions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -22,6 +23,15 @@ namespace Boilerplate.Services.Implementations
         {
             _authService = authService;
             _hostingEnvironment = hostingEnvironment;
+        }
+
+        public async Task<FileUpload> Get(Guid id)
+        {
+            var upload = await DbContext.FileUploads.FindAsync(id);
+            if (upload == null)
+                throw new EntityNotFoundException();
+
+            return upload;
         }
 
         public async Task<IEnumerable<Guid>> CreateUpload(IEnumerable<IFormFile> files)

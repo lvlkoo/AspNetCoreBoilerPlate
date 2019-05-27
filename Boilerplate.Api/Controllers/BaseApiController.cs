@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Boilerplate.Api.Utils;
+using Boilerplate.DAL.Entities;
 using Boilerplate.Models;
 using Boilerplate.Models.Exceptions;
 using Boilerplate.Models.Validators;
@@ -71,6 +72,12 @@ namespace Boilerplate.Api.Controllers
 
             await dataResolver(key, model);
             return new BaseResponse();
+        }
+
+        protected async Task<IActionResult> PreparePhysicalFileResponse<TKey>(Func<TKey, Task<FileUpload>> dataResolver, TKey key)
+        {
+            var upload = await dataResolver(key);
+            return PhysicalFile(upload.FilePath, upload.ContentType);
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Boilerplate.DAL.Entities.Chat;
 using Microsoft.AspNetCore.Identity;
 
 namespace Boilerplate.DAL.Entities
@@ -12,5 +13,6 @@ namespace Boilerplate.DAL.Entities
 
         public virtual ICollection<FileUpload> FileUploads { get; set; }
         public virtual ICollection<ApplicationUserRole> UserRoles { get; set; }
+        public virtual ICollection<ChatChannelUser> ChatUsers { get; set; }
     }
 }
