@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Boilerplate.DAL.Entities;
+using Boilerplate.Entities;
 using Microsoft.AspNetCore.Http;
 
 namespace Boilerplate.Services.Abstractions

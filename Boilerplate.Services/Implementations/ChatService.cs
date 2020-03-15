@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Boilerplate.DAL;
-using Boilerplate.DAL.Entities.Chat;
-using Boilerplate.Models;
+using Boilerplate.Commons.Exceptions;
+using Boilerplate.EF;
+using Boilerplate.Entities.Chat;
 using Boilerplate.Models.Chat;
-using Boilerplate.Models.Exceptions;
 using Boilerplate.Services.Abstractions;
 using Microsoft.EntityFrameworkCore;
 
@@ -33,7 +32,7 @@ namespace Boilerplate.Services.Implementations
         {
             var query =
                 from channel in DbContext.ChatChannels
-                join channelUser in DbContext.ChatChannelUsers on channel.Id equals channelUser.Channeld into channelUsers
+                join channelUser in DbContext.ChatChannelUsers on channel.Id equals channelUser.ChannelId into channelUsers
                 where channelUsers.Select(_ => _.UserId).Contains(userId)
                 select new UserChannelInfoModel
                 {
@@ -48,7 +47,7 @@ namespace Boilerplate.Services.Implementations
             var messages = await DbContext.ChatMessages
                 .Include(cm => cm.Attachments)
                 .ThenInclude(a => a.Upload)
-                .Where(cm => cm.Channeld == channelId)
+                .Where(cm => cm.ChannelId == channelId)
                 .ToListAsync();
             return MapList<ChatMessageModel>(messages);
         }
@@ -69,7 +68,7 @@ namespace Boilerplate.Services.Implementations
             var channelUser = new ChatChannelUser
             {
                 UserId = user.Id,
-                Channeld = channel.Id
+                ChannelId = channel.Id
             };
 
             await DbContext.AddAsync(channelUser);
@@ -77,7 +76,7 @@ namespace Boilerplate.Services.Implementations
 
             await _chatProvider.UserJoinedToChannel(user, channel.Id);
 
-            return new JoinChannelResultModel { Channeld = channel.Id };
+            return new JoinChannelResultModel { ChannelId = channel.Id };
         }
 
         public async Task<JoinChannelResultModel> JoinToPrivateChannel(JoinChannelRequestModel model)
@@ -96,13 +95,13 @@ namespace Boilerplate.Services.Implementations
             var receiver = new ChatChannelUser
             {
                 UserId = model.ChannelId,
-                Channeld = channel.Id
+                ChannelId = channel.Id
             };
 
             var sender = new ChatChannelUser
             {
                 UserId = currentUser.Id,
-                Channeld = channel.Id
+                ChannelId = channel.Id
             };
 
             await DbContext.AddAsync(receiver);
@@ -115,15 +114,15 @@ namespace Boilerplate.Services.Implementations
             //adding sender to this private chnannel
             await _chatProvider.UserJoinedToChannel(currentUser, channel.Id);
 
-            return new JoinChannelResultModel {Channeld = channel.Id};
+            return new JoinChannelResultModel {ChannelId = channel.Id};
         }
 
-        public async Task LeaveChannel(Guid channeld)
+        public async Task LeaveChannel(Guid channelId)
         {
             var currentUserId = _authService.GetAuthorizedUserId();
             var channelUser = await DbContext.ChatChannelUsers
                 .Include(cu => cu.User)
-                .FirstOrDefaultAsync(cu => cu.Channeld == channeld && cu.UserId == currentUserId);
+                .FirstOrDefaultAsync(cu => cu.ChannelId == channelId && cu.UserId == currentUserId);
 
             if (channelUser == null)
                 throw new EntityNotFoundException("User doesn't belong to this group");
@@ -131,7 +130,7 @@ namespace Boilerplate.Services.Implementations
             DbContext.ChatChannelUsers.Remove(channelUser);
             await DbContext.SaveChangesAsync();
 
-            await _chatProvider.UserLeftFromChannel(channelUser.User, channeld);
+            await _chatProvider.UserLeftFromChannel(channelUser.User, channelId);
         }
 
         public async Task<ChatMessageModel> GetMessage(Guid id)
@@ -151,7 +150,7 @@ namespace Boilerplate.Services.Implementations
         {
             var currentUser = await _authService.GetAuthorizedUser();
 
-            var channel = await DbContext.ChatChannels.FindAsync(model.Channeld);
+            var channel = await DbContext.ChatChannels.FindAsync(model.ChannelId);
             if (channel == null)
                 throw new EntityNotFoundException("Channel with specified id is not found");
 
@@ -162,7 +161,7 @@ namespace Boilerplate.Services.Implementations
 
             var message = new ChatMessage
             {
-                Channeld = channel.Id,
+                ChannelId = channel.Id,
                 SenderId = currentUser.Id,
                 Message = model.Text,
                 Attachments = model.Attachments.Select(id => new ChatMessageAttachment

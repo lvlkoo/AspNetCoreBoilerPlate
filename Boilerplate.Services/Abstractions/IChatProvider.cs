@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Boilerplate.DAL.Entities;
-using Boilerplate.DAL.Entities.Chat;
+using Boilerplate.Entities;
+using Boilerplate.Entities.Chat;
 
 namespace Boilerplate.Services.Abstractions
 {

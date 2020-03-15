@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Boilerplate.DAL.Entities;
+using Boilerplate.Entities;
 using Boilerplate.Models.Auth;
 
 namespace Boilerplate.Services.Abstractions

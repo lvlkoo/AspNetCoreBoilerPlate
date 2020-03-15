@@ -6,10 +6,10 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
-using Boilerplate.DAL;
-using Boilerplate.DAL.Entities;
+using Boilerplate.Commons.Exceptions;
+using Boilerplate.EF;
+using Boilerplate.Entities;
 using Boilerplate.Models.Auth;
-using Boilerplate.Models.Exceptions;
 using Boilerplate.Services.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
@@ -44,6 +44,9 @@ namespace Boilerplate.Services.Implementations
             if (!identityResult.Succeeded)
                 throw new ServerErrorException($"User creation error. {string.Join(",", identityResult.Errors)}");
 
+//            var roles = user.UserRoles?.Select(_ => _.Role.Name).ToList();
+//            var userPermissions = user.UserRoles?.SelectMany(_ => _.Role.Permissions.Split(",")).ToList();
+
             var resultModel = new AuthResultModel
             {
                 Token = await GenerateUserToken(newUser),
@@ -68,15 +71,17 @@ namespace Boilerplate.Services.Implementations
             user.RefreshToken = GenerateRefreshToken();
             await _userManager.UpdateAsync(user);
 
-            var userPermissions = user.UserRoles.SelectMany(_ => _.Role.Permissions.Split(","));
+            var roles = user.UserRoles?.Select(_ => _.Role.Name).ToList();
+            var userPermissions = user.UserRoles?.SelectMany(_ => _.Role.Permissions.Split(",")).ToList();
 
             var resultModel = new AuthResultModel
             {
                 Token = await GenerateUserToken(user),
                 Expire = DateTime.UtcNow.AddDays(7),
                 UserId = user.Id,
-                Permissions = new List<string>(userPermissions),
-                RefreshToken = user.RefreshToken
+                RefreshToken = user.RefreshToken,
+                Roles = roles,
+                Permissions = userPermissions,
             };
 
             return resultModel;
@@ -107,12 +112,17 @@ namespace Boilerplate.Services.Implementations
             user.RefreshToken = GenerateRefreshToken();
             await _userManager.UpdateAsync(user);
 
+            var roles = user.UserRoles?.Select(_ => _.Role.Name).ToList();
+            var userPermissions = user.UserRoles?.SelectMany(_ => _.Role.Permissions.Split(",")).ToList();
+
             var resultModel = new AuthResultModel
             {
                 Token = await GenerateUserToken(user),
                 Expire = DateTime.UtcNow.AddDays(7),
                 UserId = user.Id,
-                RefreshToken = user.RefreshToken
+                RefreshToken = user.RefreshToken,
+                Roles = roles,
+                Permissions = userPermissions
             };
 
             return resultModel;

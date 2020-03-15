@@ -1,48 +1,59 @@
-﻿using System.Linq;
-using Microsoft.AspNetCore.Authorization.Infrastructure;
-using Microsoft.AspNetCore.Mvc.Authorization;
-using Swashbuckle.AspNetCore.Swagger;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Boilerplate.Api.ActionFilters;
+using Boilerplate.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Boilerplate.Api.Utils.Swagger
 {
-    public class SwaggerAuthorizedFilter: IOperationFilter
+    public class SwaggerAuthorizedFilter : IOperationFilter
     {
-        public void Apply(Operation operation, OperationFilterContext context)
+        public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-            if (context.ApiDescription.ActionDescriptor.FilterDescriptors.Any(_ =>
-                _.Filter.GetType() == typeof(AuthorizeFilter)))
+            if (context.ApiDescription.ActionDescriptor.EndpointMetadata.Any(_ =>
+                _.GetType() == typeof(AuthorizeAttribute)))
             {
-                operation.Responses.Add("401", new Response
+                var baseResponseContent = new Dictionary<string, OpenApiMediaType>
+                {
+                    {
+                        "application/json", new OpenApiMediaType
+                        {
+                            Schema = new OpenApiSchema
+                            {
+                                Reference = new OpenApiReference
+                                {
+                                    Id = typeof(BaseResponse).Name,
+                                    Type = ReferenceType.Schema
+                                }
+                            }
+                        }
+                    }
+                };
+
+                operation.Responses.Add("401", new OpenApiResponse
                 {
                     Description = "Unauthorized",
-                    Schema = new Schema
-                    {
-                        Ref = "#/definitions/BaseResponse"
-                    }
+                    Content = baseResponseContent
                 });
 
-                operation.Responses.Add("403", new Response
+                operation.Responses.Add("403", new OpenApiResponse
                 {
                     Description = "Forbidden",
-                    Schema = new Schema
-                    {
-                        Ref = "#/definitions/BaseResponse"
-                    }
+                    Content = baseResponseContent
                 });
 
                 var filterDescriptor = context.ApiDescription.ActionDescriptor.FilterDescriptors.Where(_ =>
-                    _.Filter.GetType() == typeof(AuthorizeFilter));
+                    _.Filter.GetType() == typeof(PermissionRequiredAttribute));
 
-                var authFilters = filterDescriptor.Select(_ => _.Filter as AuthorizeFilter);
-                var rolesRequirements = authFilters
-                    .Where(_ => _?.Policy != null)
-                    .SelectMany(_ => _.Policy.Requirements)
-                    .OfType<RolesAuthorizationRequirement>()
+                var authFilters = filterDescriptor.Select(_ => _.Filter as PermissionRequiredAttribute);
+                var permissionsRequired = authFilters
+                    .SelectMany(_ => _.Permissions)
                     .ToList();
-                var roles = rolesRequirements.SelectMany(_ => _.AllowedRoles).ToList();
-                if (roles.Any())
-                    operation.Description += $"Roles allowed: {string.Join(", ", roles)}";
+
+                if (permissionsRequired.Any())
+                    operation.Description += $"Permissions required: {string.Join(", ", permissionsRequired)}";
             }
         }
     }

@@ -3,7 +3,7 @@ using Boilerplate.Models.Auth;
 using FluentAssertions;
 using Xunit;
 
-namespace Boilerplate.Tests.Controllers
+namespace Boilerplate.IntegrationTests.Controllers
 {
     public class AuthControllerTests: IntegrationTestBase
     {

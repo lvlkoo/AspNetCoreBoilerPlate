@@ -1,33 +1,32 @@
-﻿using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using Boilerplate.Api.ActionFilters;
-using Boilerplate.Api.Middleware;
-using Boilerplate.Api.Utils;
+using Boilerplate.Api.Extensions;
 using Boilerplate.Api.Utils.Swagger;
-using Boilerplate.DAL;
-using Boilerplate.DAL.Entities;
+using Boilerplate.EF;
+using Boilerplate.Entities;
 using Boilerplate.Models;
+using Boilerplate.Services;
 using Boilerplate.Services.Abstractions;
 using Boilerplate.Services.Implementations;
-using Boilerplate.Services.SignalR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Boilerplate.Api
 {
@@ -47,8 +46,8 @@ namespace Boilerplate.Api
         {
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                //options.UseInMemoryDatabase("db"); //for testing purposes only
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                options.UseInMemoryDatabase("db"); //for testing purposes only
+                //options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
             services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
                 {
@@ -87,76 +86,72 @@ namespace Boilerplate.Api
                             return Task.CompletedTask;
                         }
                     };
-
                 });
 
             services.AddAuthorization(options =>
             {
-                options.AddPolicy("JWT", policy =>
-                {
-                    policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
-                    policy.RequireAuthenticatedUser();
-                });
+                options.DefaultPolicy = new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+                    .RequireAuthenticatedUser()
+                    .Build();
             });
 
-            services.AddMvc(options =>
-                {            
-                    options.Filters.Add(typeof(ModelValidatorActionFilter));
-                    options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status200OK));
-                    options.Filters.Add(new ProducesResponseTypeAttribute(typeof(BaseResponse), StatusCodes.Status400BadRequest));
-                })
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddControllers(options =>
+            {
+                options.Filters.Add(typeof(ModelValidatorActionFilter));
+                options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status200OK));
+                options.Filters.Add(
+                    new ProducesResponseTypeAttribute(typeof(BaseResponse), StatusCodes.Status400BadRequest));
+            });
 
-            services.AddVersionedApiExplorer(  
-                options =>  
-                {                    
-                    options.GroupNameFormat = "'v'VVV";  
-                    options.SubstituteApiVersionInUrl = true;  
-                }); ;  
-            
+            services.AddVersionedApiExplorer(
+                options =>
+                {
+                    options.GroupNameFormat = "'v'VVV";
+                    options.SubstituteApiVersionInUrl = true;
+                });
+            ;
+
             services.AddApiVersioning(options => { options.DefaultApiVersion = new ApiVersion(1, 0); });
-
+            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ApiVersionSwaggerOptions>();
             services.AddSwaggerGen(options =>
             {
-                var provider = services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
-                foreach (var description in provider.ApiVersionDescriptions)
-                {
-                    options.SwaggerDoc(description.GroupName, new Info  
-                    {  
-                        Title = $"Project API {description.ApiVersion}",  
-                        Version = description.ApiVersion.ToString(),  
-                        Description = description.IsDeprecated ? $"Project API {description.ApiVersion} - DEPRECATED" : $"Project API {description.ApiVersion}"
-                    });  
-                }
-                
                 options.OperationFilter<SwaggerDefaultValues>();
-                options.OperationFilter<SwaggerFileUploadFilter>();
+                //options.OperationFilter<SwaggerFileUploadFilter>();
                 options.OperationFilter<SwaggerAuthorizedFilter>();
-  
-                options.IncludeXmlComments(Path.Combine(   
-                    Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), $"{GetType().Assembly.GetName().Name}.xml"  
+
+                options.IncludeXmlComments(Path.Combine(
+                    Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location),
+                    $"{GetType().Assembly.GetName().Name}.xml"
                 ));
 
-                options.AddSecurityDefinition("Bearer", new ApiKeyScheme
+                options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Description =
+                        "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
                     Name = "Authorization",
-                    In = "Header",
-                    Type = "apiKey"
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
                 });
 
-                options.AddSecurityRequirement(new Dictionary<string, IEnumerable<string>>
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
-                    { "Bearer", new string[] { } }
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] { }
+                    }
                 });
             });
 
-            services.AddAutoMapper(config =>
-            {
-                config.AddProfile<AutomapperProfile>();
-            });
+            services.AddAutoMapper(typeof(Startup));
 
-            services.AddSingleton<IAuthorizationHandler, PermissionAuthorizationHandler>();
 
             //application services
             services.AddTransient<IAuthService, DefaultJwtAuthService>();
@@ -164,27 +159,18 @@ namespace Boilerplate.Api
             services.AddTransient<IEmailService, MailKitEmailService>();
             services.AddTransient<IRolesService, DefaultRolesService>();
 
+            services.AddSingleton<IPermissionsService, PermissionsService>();
+
             //chat services
-            services.AddSignalR();
-            services.AddTransient<IChatProvider, SignalrChatProvider>();
-            services.AddTransient<IChatConnectionsStore, InMemoryChatConnectionStore>();
-            services.AddTransient<IChatService, ChatService>();
+            //services.AddSignalR();
+            //services.AddTransient<IChatProvider, SignalrChatProvider>();
+            //services.AddTransient<IChatConnectionsStore, InMemoryChatConnectionStore>();
+            //services.AddTransient<IChatService, ChatService>();
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ApplicationDbContext context,
-            UserManager<ApplicationUser> userManager, RoleManager<ApplicationRole> roleManager, IApiVersionDescriptionProvider provider)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env,
+            IApiVersionDescriptionProvider provider)
         {
-            //Empty response error hack-fix (seems fixed in new asp.net core versions)
-            //app.Use(async (ctx, next) =>
-            //{
-            //    await next();
-            //    if (ctx.Response.StatusCode == 204)
-            //    {
-            //        ctx.Response.ContentLength = 0;
-            //    }
-            //});
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -198,10 +184,11 @@ namespace Boilerplate.Api
 
             //exception handling with middleware
             app.ConfigureExceptionHandler();
-
             //app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseRouting();
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseSwagger();
             app.UseSwaggerUI(
@@ -214,7 +201,7 @@ namespace Boilerplate.Api
                             description.GroupName.ToUpperInvariant());
                     }
 
-                    options.RoutePrefix = "";
+                    options.RoutePrefix = "swagger";
                 });
 
             // FOR ANGULAR
@@ -226,19 +213,15 @@ namespace Boilerplate.Api
                     .AllowCredentials()
             );
 
-            app.UseSignalR(routes =>
+            app.UseEndpoints(options =>
             {
-                routes.MapHub<MainHub>("/hubs/main");
-            });
-
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute(
+                //options.MapHub<MainHub>("/hubs/main");
+                options.MapControllerRoute(
                     name: "default",
-                    template: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
 
-            DataSeeder.Seed(context, userManager, roleManager);
+            DataSeeder.Seed(app);
         }
     }
 }

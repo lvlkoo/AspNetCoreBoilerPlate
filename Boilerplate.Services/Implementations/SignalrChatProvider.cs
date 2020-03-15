@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Boilerplate.DAL.Entities;
-using Boilerplate.DAL.Entities.Chat;
+using Boilerplate.Entities;
+using Boilerplate.Entities.Chat;
 using Boilerplate.Models.Chat.EventsData;
 using Boilerplate.Models.Enums;
 using Boilerplate.Services.Abstractions;
@@ -83,7 +83,7 @@ namespace Boilerplate.Services.Implementations
                 Username = sender.UserName
             };
 
-            await SendEventToGroup(message.Channeld, ChatEvent.MessageReceived, eventData);
+            await SendEventToGroup(message.ChannelId, ChatEvent.MessageReceived, eventData);
         }
 
         public async Task MessageEdited(ChatMessage message)
@@ -93,7 +93,7 @@ namespace Boilerplate.Services.Implementations
                 MessageId = message.Id
             };
 
-            await SendEventToGroup(message.Channeld, ChatEvent.MessageEdited, eventData);
+            await SendEventToGroup(message.ChannelId, ChatEvent.MessageEdited, eventData);
         }
 
         public async Task MessageDeleted(ChatMessage message)
@@ -103,7 +103,7 @@ namespace Boilerplate.Services.Implementations
                 MessageId = message.Id
             };
 
-            await SendEventToGroup(message.Channeld, ChatEvent.MessageDeleted, eventData);
+            await SendEventToGroup(message.ChannelId, ChatEvent.MessageDeleted, eventData);
         }
 
         private string PrepareEventData<T>(T data)
@@ -115,7 +115,7 @@ namespace Boilerplate.Services.Implementations
         private async Task SendEventToGroup<T>(Guid groupId, ChatEvent chatEvent, T data) where T : ChatBaseEventData
         {
             data.EventCode = chatEvent;
-            data.Channeld = groupId;
+            data.ChannelId = groupId;
             await _hubContext.Clients.Group(groupId.ToString()).SendAsync(chatEvent.ToString("G"), PrepareEventData(data));
         }
     }

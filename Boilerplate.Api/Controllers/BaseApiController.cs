@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Boilerplate.Api.ActionFilters;
 using Boilerplate.Api.Utils;
-using Boilerplate.DAL.Entities;
+using Boilerplate.Commons.Exceptions;
+using Boilerplate.Commons.Static;
+using Boilerplate.Commons.Validators;
+using Boilerplate.Entities;
 using Boilerplate.Models;
-using Boilerplate.Models.Exceptions;
-using Boilerplate.Models.Validators;
 using Boilerplate.Services.Abstractions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -93,14 +95,14 @@ namespace Boilerplate.Api.Controllers
         /// <summary>
         /// Get list
         /// </summary>
-        [HttpGet]
+        [HttpGet, PermissionRequired(Permissions.View)]
         public virtual async Task<BaseResponse<IEnumerable<TModel>>> Get() =>
             await PrepareResponse(Service.Get);
 
         /// <summary>
         /// Get by id
         /// </summary>
-        [HttpGet("{id}")]
+        [HttpGet("{id}"), PermissionRequired(Permissions.View)]
         [ProducesErrorResponse(StatusCodes.Status404NotFound)]
         public virtual async Task<BaseResponse<TModel>> Get([ValidGuid] Guid id) =>
             await PrepareResponse(Service.Get, id);
@@ -108,14 +110,14 @@ namespace Boilerplate.Api.Controllers
         /// <summary>
         /// Create
         /// </summary>
-        [HttpPost]
+        [HttpPost, PermissionRequired(Permissions.Edit)]
         public virtual async Task<BaseResponse<TModel>> Post(TModel model) =>
             await PrepareResponse(Service.Create, model);
 
         /// <summary>
         /// Update
         /// </summary>
-        [HttpPut("{id}")]
+        [HttpPut("{id}"), PermissionRequired(Permissions.Edit)]
         [ProducesErrorResponse(StatusCodes.Status404NotFound)]
         public virtual async Task<BaseResponse<TModel>> Put([ValidGuid] Guid id, TModel model) =>
             await PrepareResponse(Service.Update, id, model);
@@ -123,7 +125,7 @@ namespace Boilerplate.Api.Controllers
         /// <summary>
         /// Delete
         /// </summary>
-        [HttpDelete("{id}")]
+        [HttpDelete("{id}"), PermissionRequired(Permissions.Delete)]
         [ProducesErrorResponse(StatusCodes.Status404NotFound)]
         public virtual async Task<BaseResponse> Delete([ValidGuid] Guid id) =>
             await PrepareResponse(Service.Delete, id);

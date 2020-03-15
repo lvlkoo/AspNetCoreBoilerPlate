@@ -7,6 +7,6 @@ namespace Boilerplate.Models.Chat.EventsData
     {
         public ChatEvent EventCode { get; set; }
         public string EventName => EventCode.ToString("G");
-        public Guid Channeld { get; set; }
+        public Guid ChannelId { get; set; }
     }
 }

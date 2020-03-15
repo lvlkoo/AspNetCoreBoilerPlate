@@ -1,17 +1,31 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.28307.329
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29403.142
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.Api", "Boilerplate.Api\Boilerplate.Api.csproj", "{8B2CA615-8F11-4FF5-8284-D29BC8327ED3}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.Models", "Boilerplate.Models\Boilerplate.Models.csproj", "{6848E3E3-2CB5-4858-8612-28F18BDDB93D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.DAL", "Boilerplate.DAL\Boilerplate.DAL.csproj", "{D77E71AE-2B56-4E93-8F23-D061711892F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.EF", "Boilerplate.DAL\Boilerplate.EF.csproj", "{D77E71AE-2B56-4E93-8F23-D061711892F4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.Services", "Boilerplate.Services\Boilerplate.Services.csproj", "{3E99822B-E06A-4F3F-BCE7-67B4286F04D8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.Tests", "Boilerplate.Tests\Boilerplate.Tests.csproj", "{F74366B8-CF70-4AAA-B284-8232EC1B3F43}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.IntegrationTests", "Boilerplate.Tests\Boilerplate.IntegrationTests.csproj", "{F74366B8-CF70-4AAA-B284-8232EC1B3F43}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{4010F952-083B-4C1C-83ED-95BEAF02A47B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Domain", "Domain", "{BEC5F1E6-5698-4AFE-94B0-AE2B5A23CF80}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DataAccess", "DataAccess", "{4F12FF68-61C1-4FA7-9B17-4A9F10436B01}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boilerplate.Commons", "Boilerplate.Commons\Boilerplate.Commons.csproj", "{84605269-E302-4006-A66E-0B344DCAAAA1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boilerplate.Entities", "Boilerplate.Entities\Boilerplate.Entities.csproj", "{A556BE14-D6F7-4195-9625-137784CC8715}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5ECC6BEB-F739-48C6-A759-99C4FDE6132C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Boilerplate.Repository", "Boilerplate.Repository\Boilerplate.Repository.csproj", "{6A3C7FFD-A73F-45BD-93BD-A374B933DA95}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,9 +53,31 @@ Global
 		{F74366B8-CF70-4AAA-B284-8232EC1B3F43}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F74366B8-CF70-4AAA-B284-8232EC1B3F43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F74366B8-CF70-4AAA-B284-8232EC1B3F43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{84605269-E302-4006-A66E-0B344DCAAAA1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{84605269-E302-4006-A66E-0B344DCAAAA1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{84605269-E302-4006-A66E-0B344DCAAAA1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{84605269-E302-4006-A66E-0B344DCAAAA1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A556BE14-D6F7-4195-9625-137784CC8715}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A556BE14-D6F7-4195-9625-137784CC8715}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A556BE14-D6F7-4195-9625-137784CC8715}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A556BE14-D6F7-4195-9625-137784CC8715}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A3C7FFD-A73F-45BD-93BD-A374B933DA95}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A3C7FFD-A73F-45BD-93BD-A374B933DA95}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A3C7FFD-A73F-45BD-93BD-A374B933DA95}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A3C7FFD-A73F-45BD-93BD-A374B933DA95}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8B2CA615-8F11-4FF5-8284-D29BC8327ED3} = {4010F952-083B-4C1C-83ED-95BEAF02A47B}
+		{6848E3E3-2CB5-4858-8612-28F18BDDB93D} = {BEC5F1E6-5698-4AFE-94B0-AE2B5A23CF80}
+		{D77E71AE-2B56-4E93-8F23-D061711892F4} = {4F12FF68-61C1-4FA7-9B17-4A9F10436B01}
+		{3E99822B-E06A-4F3F-BCE7-67B4286F04D8} = {BEC5F1E6-5698-4AFE-94B0-AE2B5A23CF80}
+		{F74366B8-CF70-4AAA-B284-8232EC1B3F43} = {5ECC6BEB-F739-48C6-A759-99C4FDE6132C}
+		{84605269-E302-4006-A66E-0B344DCAAAA1} = {BEC5F1E6-5698-4AFE-94B0-AE2B5A23CF80}
+		{A556BE14-D6F7-4195-9625-137784CC8715} = {4F12FF68-61C1-4FA7-9B17-4A9F10436B01}
+		{6A3C7FFD-A73F-45BD-93BD-A374B933DA95} = {4F12FF68-61C1-4FA7-9B17-4A9F10436B01}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F239D0E1-396F-42FF-AE9D-322B49EC2ECC}

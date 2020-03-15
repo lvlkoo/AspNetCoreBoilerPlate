@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Boilerplate.Commons.Exceptions;
 using Boilerplate.Models.Enums;
-using Boilerplate.Models.Exceptions;
 
 namespace Boilerplate.Services
 {

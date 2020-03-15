@@ -1,5 +1,5 @@
 ﻿using AutoMapper;
-using Boilerplate.DAL.Entities.Chat;
+using Boilerplate.Entities.Chat;
 using Boilerplate.Models.Chat;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;

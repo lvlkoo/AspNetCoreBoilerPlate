@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
-namespace Boilerplate.Tests.Controllers
+namespace Boilerplate.IntegrationTests.Controllers
 {
     public class UserRolesControllerTest: IntegrationTestBase
     {

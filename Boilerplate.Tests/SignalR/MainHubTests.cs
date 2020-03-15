@@ -3,7 +3,7 @@ using FluentAssertions;
 using Microsoft.AspNetCore.SignalR.Client;
 using Xunit;
 
-namespace Boilerplate.Tests.SignalR
+namespace Boilerplate.IntegrationTests.SignalR
 {
     public class MainHubTests: IntegrationTestBase
     {

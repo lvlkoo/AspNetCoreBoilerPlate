@@ -1,16 +1,19 @@
 ﻿using System;
 using AutoMapper;
 using Boilerplate.Api;
-using Boilerplate.DAL;
+using Boilerplate.EF;
+using Boilerplate.IntegrationTests.Mocks;
+using Boilerplate.Services.Abstractions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
-namespace Boilerplate.Tests
+namespace Boilerplate.IntegrationTests
 {
-    public class Factory: WebApplicationFactory<Startup>
+    public class Factory : WebApplicationFactory<Startup>
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -26,7 +29,7 @@ namespace Boilerplate.Tests
                     options.UseInternalServiceProvider(serviceProvider);
                 });
 
-                services.AddAutoMapper();
+                services.AddAutoMapper(typeof(Startup));
 
                 var sp = services.BuildServiceProvider();
                 var mapper = sp.GetService<IMapper>();
@@ -51,6 +54,11 @@ namespace Boilerplate.Tests
                                             "database with test messages. ErrorModel: {ex.Message}");
                     }
                 }
+            });
+
+            builder.ConfigureTestServices(services =>
+            {
+                services.AddSingleton<IPermissionsService, MockedPermissionsService>();
             });
         }
     }

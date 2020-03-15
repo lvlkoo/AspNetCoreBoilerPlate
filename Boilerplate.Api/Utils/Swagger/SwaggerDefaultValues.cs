@@ -1,39 +1,41 @@
 using System.Linq;
-using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Boilerplate.Api.Utils.Swagger
 {
     public class SwaggerDefaultValues : IOperationFilter
     {
-        public void Apply(Operation operation, OperationFilterContext context)  
-        {  
-            if (operation.Parameters == null)  
-            {  
-                return;  
-            }  
-            foreach (var parameter in operation.Parameters.OfType<NonBodyParameter>())  
-            {  
-                var description = context.ApiDescription.ParameterDescriptions.First(p => p.Name == parameter.Name);  
-                var routeInfo = description.RouteInfo;  
-  
-                if (parameter.Description == null)  
-                {  
-                    parameter.Description = description.ModelMetadata?.Description;  
-                }  
-  
-                if (routeInfo == null)  
-                {  
-                    continue;  
-                }  
-  
-                if (parameter.Default == null)  
-                {  
-                    parameter.Default = routeInfo.DefaultValue;  
-                }  
-  
-                parameter.Required |= !routeInfo.IsOptional;  
-            }  
-        }  
+        public void Apply(OpenApiOperation operation, OperationFilterContext context)
+        {
+            var apiDescription = context.ApiDescription;
+
+            operation.Deprecated |= apiDescription.IsDeprecated();
+
+            if (operation.Parameters == null)
+            {
+                return;
+            }
+
+
+            foreach (var parameter in operation.Parameters)
+            {
+                var description = apiDescription.ParameterDescriptions.First(p => p.Name == parameter.Name);
+
+                if (parameter.Description == null)
+                {
+                    parameter.Description = description.ModelMetadata?.Description;
+                }
+
+                if (parameter.Schema.Default == null && description.DefaultValue != null)
+                {
+                    parameter.Schema.Default = new OpenApiString(description.DefaultValue.ToString());
+                }
+
+                parameter.Required |= description.IsRequired;
+            }
+        }
     }
 }

@@ -1,5 +1,5 @@
 ﻿using System;
-using Boilerplate.Models.Validators;
+using Boilerplate.Commons.Validators;
 
 namespace Boilerplate.Models.Chat
 {

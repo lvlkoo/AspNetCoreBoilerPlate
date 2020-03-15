@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Boilerplate.Models;
 using Boilerplate.Models.Chat;
 
 namespace Boilerplate.Services.Abstractions
@@ -13,7 +12,7 @@ namespace Boilerplate.Services.Abstractions
         Task<IEnumerable<ChatMessageModel>> GetChannelMessages(Guid channelId);
         Task<JoinChannelResultModel> JoinToGroupChannel(JoinChannelRequestModel model);
         Task<JoinChannelResultModel> JoinToPrivateChannel(JoinChannelRequestModel model);
-        Task LeaveChannel(Guid channeld);
+        Task LeaveChannel(Guid channelId);
         Task<ChatMessageModel> GetMessage(Guid id);
         Task<ChatMessageModel> PostMessage(PostChatMessageRequestModel model);
         Task<ChatMessageModel> EditMessage(Guid id, PostChatMessageRequestModel model);

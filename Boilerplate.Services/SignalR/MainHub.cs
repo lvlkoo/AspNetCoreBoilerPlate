@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Boilerplate.Services.Abstractions;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Boilerplate.Services.SignalR
 {
-    [Authorize("JWT")]
     public class MainHub: Hub
     {
         private readonly IAuthService _authService;
@@ -25,21 +23,30 @@ namespace Boilerplate.Services.SignalR
 
         public override async Task OnConnectedAsync()
         {
-            if (!_authService.IsAuthorized())
-            {
-                Context.Abort();
-                return;
-            }
+            //if (!_authService.IsAuthorized())
+            //{
+            //    Context.Abort();
+            //    return;
+            //}
 
-            await _connectionsStore.StoreUserConnection(Context.ConnectionId);
-
-            var user = await _authService.GetAuthorizedUser();
-            var userChannels = await _chatService.GetUserChannels(user.Id);
-            foreach (var channel in userChannels)
+            await Task.Run(async () =>
             {
-                await Groups.AddToGroupAsync(Context.ConnectionId, channel.Id.ToString());
-                await _provider.UserConnectedToServer(user, channel.Id);
-            }               
+                while (true)
+                {
+                    await Clients.Client(Context.ConnectionId).SendAsync("omMessageReceived", new {message = "hello"});
+                    await Task.Delay(1000);
+                }
+            });
+
+            //await _connectionsStore.StoreUserConnection(Context.ConnectionId);
+
+            //var user = await _authService.GetAuthorizedUser();
+            //var userChannels = await _chatService.GetUserChannels(user.Id);
+            //foreach (var channel in userChannels)
+            //{
+            //    await Groups.AddToGroupAsync(Context.ConnectionId, channel.Id.ToString());
+            //    await _provider.UserConnectedToServer(user, channel.Id);
+            //}               
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)

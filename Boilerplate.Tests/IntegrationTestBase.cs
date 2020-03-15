@@ -4,18 +4,17 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using Boilerplate.DAL;
-using Boilerplate.DAL.Entities;
+using Boilerplate.EF;
+using Boilerplate.Entities;
 using Boilerplate.Models;
 using Boilerplate.Models.Auth;
 using FluentAssertions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using Swashbuckle.AspNetCore.Swagger;
 using Xunit;
 
-namespace Boilerplate.Tests
+namespace Boilerplate.IntegrationTests
 {
     public class IntegrationTestBase : IClassFixture<Factory>
     {
@@ -100,7 +99,7 @@ namespace Boilerplate.Tests
             return await PrepareResponse<TModel>(response);
         }
 
-        protected async Task<Response> Delete(string uri)
+        protected async Task<BaseResponse> Delete(string uri)
         {
             SetupClient();
             var response = await _client.DeleteAsync(uri);
@@ -117,13 +116,13 @@ namespace Boilerplate.Tests
             return modelResult;
         }
 
-        private async Task<Response> PrepareResponse(HttpResponseMessage response)
+        private async Task<BaseResponse> PrepareResponse(HttpResponseMessage response)
         {
             if (response.StatusCode == HttpStatusCode.NotFound)
                 throw new HttpRequestException("The specified uri was not found");
 
             var stringContent = await response.Content.ReadAsStringAsync();
-            var modelResult = JsonConvert.DeserializeObject<Response>(stringContent);
+            var modelResult = JsonConvert.DeserializeObject<BaseResponse>(stringContent);
             return modelResult;
         }
 

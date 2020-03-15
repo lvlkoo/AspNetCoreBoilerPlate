@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using AutoMapper;
-using Boilerplate.DAL.Entities;
-using Boilerplate.DAL.Entities.Chat;
+using Boilerplate.Entities;
+using Boilerplate.Entities.Chat;
 using Boilerplate.Models;
 using Boilerplate.Models.Chat;
 

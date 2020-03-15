@@ -3,27 +3,32 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using Boilerplate.DAL;
-using Boilerplate.DAL.Entities;
+using Boilerplate.Commons.Exceptions;
+using Boilerplate.EF;
+using Boilerplate.Entities;
 using Boilerplate.Models;
-using Boilerplate.Models.Auth;
-using Boilerplate.Models.Exceptions;
 using Boilerplate.Services.Abstractions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Boilerplate.Services.Implementations
 {
-    public class DefaultRolesService: BaseDataService<ApplicationRole, RoleModel>, IRolesService
+    public class DefaultRolesService : BaseDataService<ApplicationRole, RoleModel>, IRolesService
     {
         private readonly RoleManager<ApplicationRole> _roleManager;
+        private readonly IPermissionsService _permissionsService;
 
-        public DefaultRolesService(ApplicationDbContext context, IMapper mapper, RoleManager<ApplicationRole> roleManager) : base(context, mapper)
+        public DefaultRolesService(ApplicationDbContext context, IMapper mapper,
+            RoleManager<ApplicationRole> roleManager, IPermissionsService permissionsService) : base(context, mapper)
         {
             _roleManager = roleManager;
+            _permissionsService = permissionsService;
         }
 
-        public async Task<IEnumerable<string>> GetPermissions() => Permission.GetAllPermissions();
+        public async Task<IEnumerable<string>> GetPermissions()
+        {
+            return _permissionsService.GetAllPermissions();
+        }
 
         public override async Task<IEnumerable<RoleModel>> Get()
         {

@@ -4,6 +4,6 @@ namespace Boilerplate.Models.Chat
 {
     public class JoinChannelResultModel
     {
-        public Guid Channeld { get; set; }
+        public Guid ChannelId { get; set; }
     }
 }

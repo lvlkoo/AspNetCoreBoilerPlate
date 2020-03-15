@@ -10,5 +10,6 @@ namespace Boilerplate.Models.Auth
         public Guid UserId { get; set; }
         public string RefreshToken { get; set; }
         public List<string> Permissions { get; set; }
+        public List<string> Roles { get; set; }
     }
 }
