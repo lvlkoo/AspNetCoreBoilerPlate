@@ -101,7 +101,7 @@ namespace Boilerplate.Api
                 options.Filters.Add(new ProducesResponseTypeAttribute(StatusCodes.Status200OK));
                 options.Filters.Add(
                     new ProducesResponseTypeAttribute(typeof(BaseResponse), StatusCodes.Status400BadRequest));
-            });
+            }).AddNewtonsoftJson();
 
             services.AddVersionedApiExplorer(
                 options =>
