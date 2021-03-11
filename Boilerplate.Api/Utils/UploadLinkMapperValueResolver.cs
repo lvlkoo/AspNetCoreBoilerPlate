@@ -7,17 +7,22 @@ using Microsoft.AspNetCore.Routing;
 
 namespace Boilerplate.Api.Utils
 {
+    /// <summary>
+    /// Provide mapping for chat attachment link
+    /// </summary>
     public class UploadLinkMapperValueResolver: IValueResolver<ChatMessageAttachment, ChatMessageAttachmentModel, string>
     {
         private readonly LinkGenerator _linkGenerator;
         private readonly IHttpContextAccessor _contextAccessor;
 
+        /// <inheritdoc />
         public UploadLinkMapperValueResolver(LinkGenerator linkGenerator, IHttpContextAccessor contextAccessor)
         {
             _linkGenerator = linkGenerator;
             _contextAccessor = contextAccessor;
         }
 
+        /// <inheritdoc />
         public string Resolve(ChatMessageAttachment source, ChatMessageAttachmentModel destination, string destMember,
             ResolutionContext context)
         {

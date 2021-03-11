@@ -6,8 +6,12 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Boilerplate.Api.Utils
 {
+    /// <summary>
+    /// Provide error responses
+    /// </summary>
     public class ValidationFailedResult : ObjectResult
     {
+        /// <inheritdoc />
         public ValidationFailedResult(ModelStateDictionary modelState) : base(PrepareResponse(modelState))
         {
             StatusCode = StatusCodes.Status422UnprocessableEntity;

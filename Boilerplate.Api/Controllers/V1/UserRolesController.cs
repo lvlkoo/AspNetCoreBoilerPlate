@@ -10,10 +10,14 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Boilerplate.Api.Controllers.V1
 {
+    /// <summary>
+    /// User roles management
+    /// </summary>
     [Authorize, ValidatesPermissions]
     [ApiVersion("1.0"), Route("api/v{version:apiVersion}/user-roles")]
     public class UserRolesController: BaseApiController<IRolesService, RoleModel>
     {
+        /// <inheritdoc />
         public UserRolesController(IRolesService service) : base(service)
         {
         }

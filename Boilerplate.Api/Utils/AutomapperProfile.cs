@@ -8,8 +8,12 @@ using Boilerplate.Models.Chat;
 
 namespace Boilerplate.Api.Utils
 {
+    /// <summary>
+    /// Root auto mapper settings
+    /// </summary>
     public class AutomapperProfile: Profile
     {
+        /// <inheritdoc />
         public AutomapperProfile()
         {
             CreateMap<ApplicationRole, RoleModel>()

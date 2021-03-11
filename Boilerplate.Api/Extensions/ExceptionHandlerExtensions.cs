@@ -11,15 +11,21 @@ using Newtonsoft.Json.Serialization;
 
 namespace Boilerplate.Api.Extensions
 {
+    /// <summary>
+    /// Extension handler configuration
+    /// </summary>
     public static class ExceptionHandlerExtensions
     {
+        /// <summary>
+        /// Extension handler configuration
+        /// </summary>
         public static void ConfigureExceptionHandler(this IApplicationBuilder app)
         {
             app.UseExceptionHandler(appError =>
             {
                 appError.Run(async context =>
                 {
-                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+                    context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
                     context.Response.ContentType = "application/json";
 
                     var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
@@ -27,7 +33,8 @@ namespace Boilerplate.Api.Extensions
                     {
                         var loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
                         var logger = loggerFactory.CreateLogger("ExceptionMiddleware");
-                        logger.LogError($"App error: {contextFeature.Error}. Stack trace: {contextFeature.Error.StackTrace}");
+                        logger.LogError(
+                            $"App error: {contextFeature.Error}. Stack trace: {contextFeature.Error.StackTrace}");
 
                         var message = "Internal Server ErrorModel.";
 
@@ -39,7 +46,7 @@ namespace Boilerplate.Api.Extensions
 
                         var error = new ErrorModel
                         {
-                            Message = message.ToString()
+                            Message = message
                         };
 
                         var response = new BaseResponse
@@ -53,7 +60,7 @@ namespace Boilerplate.Api.Extensions
                         {
                             ContractResolver = new CamelCasePropertyNamesContractResolver()
                         };
-                        await context.Response.WriteAsync(JsonConvert.SerializeObject(response, serializerSettings).ToString());
+                        await context.Response.WriteAsync(JsonConvert.SerializeObject(response, serializerSettings));
                     }
                 });
             });

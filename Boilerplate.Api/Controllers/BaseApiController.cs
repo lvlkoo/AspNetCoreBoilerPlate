@@ -14,9 +14,19 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Boilerplate.Api.Controllers
 {
+    /// <summary>
+    /// Application controller with basic features
+    /// </summary>
     [ApiController, Produces("application/json")]
     public class BaseApiController : ControllerBase
     {
+
+        /// <summary>
+        /// Create BaseResponse based on data returned by data resolver method 
+        /// </summary>
+        /// <param name="dataResolver">Data resolver method</param>
+        /// <typeparam name="TResult">Type of data returned</typeparam>
+        /// <returns></returns>
         protected async Task<BaseResponse<TResult>> PrepareResponse<TResult>(Func<Task<TResult>> dataResolver)
         {
             return new BaseResponse<TResult>
@@ -25,6 +35,14 @@ namespace Boilerplate.Api.Controllers
             };
         }
 
+        /// <summary>
+        /// Create empty BaseResponse after calling data resolver method with generic argument
+        /// </summary>
+        /// <param name="dataResolver">Data resolver method</param>
+        /// <param name="arg">Argument passed to data resolver</param>
+        /// <typeparam name="TRequest">Type of passed argument</typeparam>
+        /// <returns></returns>
+        /// <exception cref="BadRequestException"></exception>
         protected async Task<BaseResponse> PrepareResponse<TRequest>(Func<TRequest, Task> dataResolver, TRequest arg)
         {
             if (arg == null)
@@ -34,6 +52,15 @@ namespace Boilerplate.Api.Controllers
             return new BaseResponse();
         }
 
+        /// <summary>
+        /// Create BaseResponse based on data returned by data resolver method with model argument
+        /// </summary>
+        /// <param name="dataResolver">Data resolver method</param>
+        /// <param name="model">Model argument passed to data resolver</param>
+        /// <typeparam name="TRequest">Type of passed model</typeparam>
+        /// <typeparam name="TResult">Type of data returned</typeparam>
+        /// <returns></returns>
+        /// <exception cref="BadRequestException"></exception>
         protected async Task<BaseResponse<TResult>> PrepareResponse<TRequest, TResult>(Func<TRequest, Task<TResult>> dataResolver, TRequest model)
         {
             if (model == null)
@@ -45,6 +72,17 @@ namespace Boilerplate.Api.Controllers
             };
         }
 
+        /// <summary>
+        /// Create BaseResponse based on data returned by data resolver method with model and key arguments
+        /// </summary>
+        /// <param name="dataResolver">Data resolver method</param>
+        /// <param name="key">Key argument passed to data resolver</param>
+        /// <param name="model">Model argument passed to data resolver</param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TRequest">Type of passed model</typeparam>
+        /// <typeparam name="TResult">Type of data returned</typeparam>
+        /// <returns></returns>
+        /// <exception cref="BadRequestException"></exception>
         protected async Task<BaseResponse<TResult>> PrepareResponse<TKey, TRequest, TResult>(Func<TKey, TRequest, Task<TResult>> dataResolver, TKey key, TRequest model)
         {
             if (model == null)
@@ -56,6 +94,18 @@ namespace Boilerplate.Api.Controllers
             };
         }
 
+        /// <summary>
+        /// Create BaseResponse based on data returned by data resolver method with model and two key arguments
+        /// </summary>
+        /// <param name="dataResolver">Data resolver method</param>
+        /// <param name="key">Key argument passed to data resolver</param>
+        /// <param name="key2">Second key argument passed to data resolver</param>
+        /// <param name="model">Model argument passed to data resolver</param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TRequest">Type of passed model</typeparam>
+        /// <typeparam name="TResult">Type of data returned</typeparam>
+        /// <returns></returns>
+        /// <exception cref="BadRequestException"></exception>
         protected async Task<BaseResponse<TResult>> PrepareResponse<TKey, TRequest, TResult>(Func<TKey, TKey, TRequest, Task<TResult>> dataResolver, TKey key, TKey key2, TRequest model)
         {
             if (model == null)
@@ -67,6 +117,16 @@ namespace Boilerplate.Api.Controllers
             };
         }
 
+        /// <summary>
+        /// Create empty BaseResponse after calling data resolver method with model and key arguments
+        /// </summary>
+        /// <param name="dataResolver">Data resolver method</param>
+        /// <param name="key">Key argument passed to data resolver</param>
+        /// <param name="model">Model argument passed to data resolver</param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TRequest"></typeparam>
+        /// <returns></returns>
+        /// <exception cref="BadRequestException"></exception>
         protected async Task<BaseResponse> PrepareResponse<TKey, TRequest>(Func<TKey, TRequest, Task> dataResolver, TKey key, TRequest model)
         {
             if (model == null)
@@ -76,6 +136,13 @@ namespace Boilerplate.Api.Controllers
             return new BaseResponse();
         }
 
+        /// <summary>
+        /// Create PhysicalFile response based on data returned by data resolver method with key argument
+        /// </summary>
+        /// <param name="dataResolver">Data resolver method</param>
+        /// <param name="key">Key argument passed to data resolver</param>
+        /// <typeparam name="TKey"></typeparam>
+        /// <returns></returns>
         protected async Task<IActionResult> PreparePhysicalFileResponse<TKey>(Func<TKey, Task<FileUpload>> dataResolver, TKey key)
         {
             var upload = await dataResolver(key);
@@ -83,10 +150,17 @@ namespace Boilerplate.Api.Controllers
         }
     }
 
+    /// <summary>
+    /// Application controller with basic features
+    /// </summary>
     public class BaseApiController<TService, TModel> : BaseApiController where TModel : IModel where TService : ICrudService<TModel>
     {
+        /// <summary>
+        /// Provided data resolver service
+        /// </summary>
         protected readonly TService Service;
 
+        /// <inheritdoc />
         public BaseApiController(TService service)
         {
             Service = service;

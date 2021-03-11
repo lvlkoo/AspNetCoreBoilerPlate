@@ -6,10 +6,14 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Boilerplate.Api.Utils.Swagger
 {
+    /// <summary>
+    /// Api versioning swagger extension
+    /// </summary>
     public class ApiVersionSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
     {
         readonly IApiVersionDescriptionProvider _provider;
 
+        /// <inheritdoc />
         public ApiVersionSwaggerOptions(IApiVersionDescriptionProvider provider) => _provider = provider;
 
         /// <inheritdoc />

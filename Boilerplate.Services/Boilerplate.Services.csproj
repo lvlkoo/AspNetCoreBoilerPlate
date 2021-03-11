@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Boilerplate.DAL\Boilerplate.EF.csproj" />
+    <ProjectReference Include="..\Boilerplate.EF\Boilerplate.EF.csproj" />
     <ProjectReference Include="..\Boilerplate.Models\Boilerplate.Models.csproj" />
   </ItemGroup>
 

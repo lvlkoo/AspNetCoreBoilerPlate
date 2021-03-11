@@ -8,16 +8,24 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Boilerplate.Api.ActionFilters
 {
+    /// <summary>
+    /// Provide permissions check
+    /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class PermissionRequiredAttribute : Attribute, IAsyncActionFilter
     {
+        /// <summary>
+        /// Required permissions
+        /// </summary>
         public string[] Permissions { get; }
 
+        /// <inheritdoc />
         public PermissionRequiredAttribute(params string[] permissions)
         {
             Permissions = permissions;
         }
 
+        /// <inheritdoc />
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             var user = context.HttpContext.User;

@@ -12,12 +12,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Boilerplate.Api.Controllers.V1
 {
+    /// <summary>
+    /// Chat endpoints
+    /// </summary>
     [Authorize, ValidatesPermissions]
     [ApiVersion("1.0"), Route("api/v{version:apiVersion}/chat")]
     public class ChatController : BaseApiController
     {
         private readonly IChatService _chatService;
 
+        /// <inheritdoc />
         public ChatController(IChatService chatService)
         {
             _chatService = chatService;

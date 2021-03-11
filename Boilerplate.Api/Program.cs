@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Serilog;
+#pragma warning disable 1591
 
 namespace Boilerplate.Api
 {
@@ -11,8 +11,9 @@ namespace Boilerplate.Api
     {
         public static void Main(string[] args)
         {
+            var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
             var loggerConfiguration = new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json")
+                .AddJsonFile($"appsettings.{environment}.json")
                 .Build();
 
             Log.Logger = new LoggerConfiguration()
@@ -36,14 +37,13 @@ namespace Boilerplate.Api
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-                .UseSerilog()
-                .ConfigureLogging((hostingContext, logging) =>
+                .ConfigureAppConfiguration(config =>
                 {
-                    logging.AddConfiguration(hostingContext.Configuration.GetSection("Logging"));
-                    logging.AddConsole();
-                    logging.AddDebug();
-                    logging.AddEventSourceLogger();
+                    config
+                        // Used for local settings like connection strings.
+                        .AddJsonFile("appsettings.Local.json", optional: true);
                 })
+                .UseSerilog()
                 .UseStartup<Startup>();
     }
 }

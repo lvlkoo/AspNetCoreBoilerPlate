@@ -5,8 +5,10 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Boilerplate.Api.Utils.Swagger
 {
+    /// <inheritdoc />
     public class SwaggerFileUploadFilter : IOperationFilter
     {
+        /// <inheritdoc />
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             if (context.MethodInfo.CustomAttributes.Any(_ => _.AttributeType == typeof(SwaggerFileUploadAttribute)))

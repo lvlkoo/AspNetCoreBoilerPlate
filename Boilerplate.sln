@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.Api", "Boilerpl
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.Models", "Boilerplate.Models\Boilerplate.Models.csproj", "{6848E3E3-2CB5-4858-8612-28F18BDDB93D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.EF", "Boilerplate.DAL\Boilerplate.EF.csproj", "{D77E71AE-2B56-4E93-8F23-D061711892F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.EF", "Boilerplate.EF\Boilerplate.EF.csproj", "{D77E71AE-2B56-4E93-8F23-D061711892F4}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Boilerplate.Services", "Boilerplate.Services\Boilerplate.Services.csproj", "{3E99822B-E06A-4F3F-BCE7-67B4286F04D8}"
 EndProject

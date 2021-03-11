@@ -8,11 +8,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Boilerplate.Api.Controllers.V1
 {
+    /// <summary>
+    /// Application authorization
+    /// </summary>
     [ApiVersion("1.0"), Route("api/v{version:apiVersion}/auth")]
     public class AuthController : BaseApiController
     {
         private readonly IAuthService _authService;
 
+        /// <inheritdoc />
         public AuthController(IAuthService authService)
         {
             _authService = authService;

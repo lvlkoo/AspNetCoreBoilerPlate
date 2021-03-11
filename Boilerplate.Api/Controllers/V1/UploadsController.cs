@@ -13,12 +13,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Boilerplate.Api.Controllers.V1
 {
+    /// <summary>
+    /// Uploads management
+    /// </summary>
     [Authorize, ValidatesPermissions]
     [ApiVersion("1.0"), Route("api/v{version:apiVersion}/uploads")]
     public class UploadsController: BaseApiController
     {
         private readonly IUploadsService _uploadsService;
 
+        /// <inheritdoc />
         public UploadsController(IUploadsService uploadsService)
         {
             _uploadsService = uploadsService;

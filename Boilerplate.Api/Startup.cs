@@ -22,11 +22,13 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+#pragma warning disable 1591
 
 namespace Boilerplate.Api
 {
@@ -46,9 +48,10 @@ namespace Boilerplate.Api
         {
             services.AddDbContext<ApplicationDbContext>(options =>
             {
-                options.UseInMemoryDatabase("db"); //for testing purposes only
-                //options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
+                //options.UseInMemoryDatabase("db"); //for testing purposes only
+                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
             });
+
             services.AddIdentity<ApplicationUser, ApplicationRole>(options =>
                 {
                     options.Password.RequireDigit = false;
@@ -168,7 +171,7 @@ namespace Boilerplate.Api
             //services.AddTransient<IChatService, ChatService>();
         }
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env,
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
             IApiVersionDescriptionProvider provider)
         {
             if (env.IsDevelopment())

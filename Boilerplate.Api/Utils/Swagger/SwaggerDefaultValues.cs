@@ -6,8 +6,12 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Boilerplate.Api.Utils.Swagger
 {
+    /// <summary>
+    /// Provide swagger default values metadata
+    /// </summary>
     public class SwaggerDefaultValues : IOperationFilter
     {
+        /// <inheritdoc />
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             var apiDescription = context.ApiDescription;

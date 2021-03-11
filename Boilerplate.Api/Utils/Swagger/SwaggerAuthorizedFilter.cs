@@ -8,8 +8,12 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace Boilerplate.Api.Utils.Swagger
 {
+    /// <summary>
+    /// Provide auth errors metadata
+    /// </summary>
     public class SwaggerAuthorizedFilter : IOperationFilter
     {
+        /// <inheritdoc />
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
             if (context.ApiDescription.ActionDescriptor.EndpointMetadata.Any(_ =>
@@ -49,7 +53,7 @@ namespace Boilerplate.Api.Utils.Swagger
 
                 var authFilters = filterDescriptor.Select(_ => _.Filter as PermissionRequiredAttribute);
                 var permissionsRequired = authFilters
-                    .SelectMany(_ => _.Permissions)
+                    .SelectMany(_ => _?.Permissions)
                     .ToList();
 
                 if (permissionsRequired.Any())
